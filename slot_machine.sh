@@ -29,7 +29,16 @@
 # - htmlq
 # - jq
 # - notify-send
+# - curl
 # - patience
+#
+# Updates:
+# 27/03/2022 - Initial version, send linux desktop notification.
+# 28/03/2022 - Added support for sending a text using textbelt.
+#
+# TODO:
+# MacOS - Send notification using osascript.
+# Windows - Send notification using powershell.
 # --------------------------------------------------------------------------------
 
 function check_and_notify_slots {
@@ -87,7 +96,7 @@ function send_text {
 function read_config {
 	cfg="./config.json"
 	if [ ! -f "${cfg}" ]; then
-		echo "No ${cfg}. Please create this file here."
+		echo "No ${cfg}. Please create this file here using config.json.example as a base."
 		exit 0
 	fi
 
