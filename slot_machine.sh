@@ -69,7 +69,8 @@ function check_and_notify_slots {
 	bb_slots=$(cat out2.txt | jq ".campaign.included[] | select( .id | contains(\"${tierId}\") ) | .attributes.remaining" | head -1)
 
 	# simple shell output
-	echo "The $description tier has $bb_slots slots."
+	d=`date +%s`
+	echo "$d, $description, $bb_slots"
 
 	if [ $bb_slots -gt 0 ]; then
 		if [ "$sendNotification" = "true" ]; then
