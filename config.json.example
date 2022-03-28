@@ -1,0 +1,10 @@
+{
+	"creator": "myfavecreator",
+	"tierId": 123456,
+	"description": "THE AWESOME TIER",
+	"interval": 60,
+	"sendNotification": true,
+	"sendText": false,
+	"textNumber": "5551234567",
+	"textBeltKey": "textbelt"
+}
