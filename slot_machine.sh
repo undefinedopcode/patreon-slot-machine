@@ -50,6 +50,8 @@ function check_and_notify_slots {
 	sendText="$5"
 	textNumber="$6"
 	textBeltKey="$7"
+	sendDiscord="$8"
+	discordWebhook="$9"
 
 	# scrape the membership page
 	curl -s "https://www.patreon.com/${patreonUser}/membership" | htmlq -t script > out.txt
@@ -76,11 +78,22 @@ function check_and_notify_slots {
 		if [ "$sendNotification" = "true" ]; then
 			notify-send -u critical -t 30000 -i $PWD/icon.png -a "Discord" -c "alert" "$description Poller" "There are $bb_slots slot(s) open on the $description tier: \nhttps://patreon.com/join/$patreonUser/checkout?rid=$tierId"
 		fi
+
 		if [ "$sendText" = "true" ]; then
 			send_text "$textNumber" "$textBeltKey" "$description tier open ($bb_slots free)."
 		fi
+
+		if [ "$sendDiscord" = "true" ]; then
+			send_discord "$discordWebhook" "$description tier open ($bb_slots free)."
+		fi
 	fi
 
+}
+
+function send_discord {
+	webhookUrl="$1"
+	body="$2"
+	curl -v -X POST "$webhookUrl" -H "Content-type: application/json" -d "{\"content\": \"${body}\"}"
 }
 
 function send_text {
@@ -109,21 +122,25 @@ function read_config {
 	export SEND_NOTIFY=$(cat ${cfg} | jq -r '.sendNotification')
 	export TEXT_NUMBER=$(cat ${cfg} | jq -r '.textNumber')
 	export TEXT_KEY=$(cat ${cfg} | jq -r '.textBeltKey')
+	export SEND_DISCORD=$(cat ${cfg} | jq -r '.sendDiscord')
+	export DISCORD_WEBHOOK=$(cat ${cfg} | jq -r '.discordWebhook')
 
-	echo "Creator : $CREATOR"
-	echo "Tier    : $TIER_ID"
-	echo "Desc    : $DESCRIPTION"
-	echo "Interval: $INTERVAL"
-	echo "Text?   : $SEND_TEXT"
-	echo "Notify? : $SEND_NOTIFY"
-	echo "Number  : $TEXT_NUMBER"
-	echo "Key     : $TEXT_KEY"
+	echo "Creator    : $CREATOR"
+	echo "Tier       : $TIER_ID"
+	echo "Desc       : $DESCRIPTION"
+	echo "Interval   : $INTERVAL"
+	echo "Text?      : $SEND_TEXT"
+	echo "Notify?    : $SEND_NOTIFY"
+	echo "Number     : $TEXT_NUMBER"
+	echo "Key        : $TEXT_KEY"
+	echo "Discord?   : $SEND_DISCORD"
+	echo "Discord URL: $DISCORD_WEBHOOK"
 }
 
 read_config
 
 while true
 do
-	check_and_notify_slots "$CREATOR" "$TIER_ID" "$DESCRIPTION" "$SEND_NOTIFY" "$SEND_TEXT" "$TEXT_NUMBER" "$TEXT_KEY"
+	check_and_notify_slots "$CREATOR" "$TIER_ID" "$DESCRIPTION" "$SEND_NOTIFY" "$SEND_TEXT" "$TEXT_NUMBER" "$TEXT_KEY" "$SEND_DISCORD" "$DISCORD_WEBHOOK"
 	sleep $INTERVAL
 done
